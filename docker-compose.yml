@@ -1,0 +1,117 @@
+version: '3.7'
+
+services:
+    account:
+        build: ./account
+        command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+        volumes:
+            - ./account/:/app/
+        ports:
+            - 8001:8000
+        environment:
+            - DATABASE_ACCOUNT_URL=postgresql://account_db:trevas@localhost/account_db
+
+    account_db:
+        image: postgres:12.1-alpine
+        volumes:
+            - postgres_data_account=/var/lib/postgresql/data/
+        environment:
+            - POSTGRES_USER=account_db
+            - POSTGRES_PASSWORD=trevas
+            - POSTGRES_DB=account_db
+
+    inventory:
+        build: ./inventory
+        command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+        volumes:
+            - ./inventory/:/app/
+        ports:
+            - 8002:8000
+        environment:
+            - DATABASE_INVENTORY_URL=postgresql://inventory_db:trevas@localhost/inventory_db
+
+    inventory_db:
+        image: postgres:12.1-alpine
+        volumes:
+            - postgres_data_inventory=/var/lib/postgresql/data/
+        environment:
+            - POSTGRES_USER=inventory_db
+            - POSTGRES_PASSWORD=trevas
+            - POSTGRES_DB=inventory_db
+
+    order:
+        build: ./order
+        command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+        volumes:
+            - ./order/:/app/
+        ports:
+            - 8003:8000
+        environment:
+            - DATABASE_ORDER_URL=postgresql://order_db:trevas@localhost/order_db
+
+    order_db:
+        image: postgres:12.1-alpine
+        volumes:
+            - postgres_data_order=/var/lib/postgresql/data/
+        environment:
+            - POSTGRES_USER=order_db
+            - POSTGRES_PASSWORD=trevas
+            - POSTGRES_DB=order_db
+
+    recommendation:
+        build: ./recommendation
+        command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+        volumes:
+            - ./recommendation/:/app/
+        ports:
+            - 8004:8000
+        environment:
+            - DATABASE_RECOMMENDATION_URL=postgresql://recommendation_db:trevas@localhost/recommendation_db
+
+    recommendation_db:
+        image: postgres:12.1-alpine
+        volumes:
+            - postgres_data_recommendation=/var/lib/postgresql/data/
+        environment:
+            - POSTGRES_USER=recommendation_db
+            - POSTGRES_PASSWORD=trevas
+            - POSTGRES_DB=recommendation_db
+
+    shipping:
+        build: ./shipping
+        command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+        volumes:
+            - ./shipping/:/app/
+        ports:
+            - 8005:8000
+        environment:
+            - DATABASE_SHIPPING_URL=postgresql://shipping_db:trevas@localhost/shipping_db
+
+    shipping_db:
+        image: postgres:12.1-alpine
+        volumes:
+            - postgres_data_shipping=/var/lib/postgresql/data/
+        environment:
+            - POSTGRES_USER=shipping_db
+            - POSTGRES_PASSWORD=trevas
+            - POSTGRES_DB=shipping_db
+
+    nginx:
+        image: nginx:latest
+        ports:
+            - "8080:8080"
+        volumes:
+            - ./nginx_config.conf:/etc/nginx/conf.d/default.conf
+        depends_on:
+            - account
+            - inventory
+            - order
+            - recommendation
+            - shipping
+
+volumes:
+    postgres_data_account:
+    postgres_data_inventory:
+    postgres_data_order:
+    postgres_data_recommendation:
+    postgres_data_shipping:
